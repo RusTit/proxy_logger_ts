@@ -64,16 +64,11 @@ const checkUserAgent = (userAgent: string | undefined): boolean => {
 };
 
 proxy.on('proxyRes', function (proxyRes, req, res) {
-  const body: any[] = [];
+  const body: Buffer[] = [];
   console.log(`Processing response.`);
   proxyRes.on('data', (chunk) => {
     console.log(`Data chunk`);
-    console.log(chunk);
-    if (Array.isArray(chunk)) {
-      body.push(...chunk);
-    } else {
-      body.push(chunk);
-    }
+    body.push(chunk);
   });
   proxyRes.on('end', async () => {
     const userAgent = req.headers['user-agent'];
@@ -110,9 +105,11 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
         ),
       ]);
     }
-    for (const [key, value] of Object.keys(proxyRes.headers)) {
-      res.setHeader(key, value);
+    for (const [key, value] of Object.entries(proxyRes.headers)) {
+      console.log(`${key} ${value}`);
     }
+    console.log('Headers:');
+    console.log(res.getHeaders());
     res.end(Buffer.concat(body));
   });
 });
