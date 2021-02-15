@@ -8,7 +8,7 @@ import { BaseEncodingOptions } from 'node:fs';
 import dotenv from 'dotenv';
 
 dotenv.config();
-const { TARGET } = process.env;
+const { TARGET, HANDLE_ALL_REQUEST } = process.env;
 
 const ROOT_DIRECTORY = path.resolve(__dirname, '..');
 const SSL_DIRECTORY = path.join(ROOT_DIRECTORY, 'ssl');
@@ -47,6 +47,10 @@ const userAgentsList = [
 ].map((agent) => agent.toLowerCase());
 
 const checkUserAgent = (userAgent: string | undefined): boolean => {
+  console.log(`User agent: ${userAgent}`);
+  if (HANDLE_ALL_REQUEST) {
+    return true;
+  }
   if (!userAgent) {
     return false;
   }
@@ -56,6 +60,7 @@ const checkUserAgent = (userAgent: string | undefined): boolean => {
 
 proxy.on('proxyRes', function (proxyRes, req, res) {
   const body: any[] = [];
+  console.log(`Processing response.`);
   proxyRes.on('data', (chunk) => {
     if (Array.isArray(chunk)) {
       body.push(...chunk);
@@ -64,10 +69,10 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
     }
   });
   proxyRes.on('end', async () => {
-    const bodyString = Buffer.concat(body).toString();
     const userAgent = req.headers['user-agent'];
     if (checkUserAgent(userAgent)) {
-      const headersString = JSON.stringify(proxyRes.headers);
+      const requestHeadersString = JSON.stringify(req.headers);
+      const responseHeadersString = JSON.stringify(proxyRes.headers);
       const timestamp = moment().format('YYYY-MM-DD-HH-mm-ss');
       const responseFile = path.join(
         LOGS_DIRECTORY,
@@ -77,14 +82,27 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
         LOGS_DIRECTORY,
         `response-headers-${timestamp}.json`,
       );
+      const requestHeadersFile = path.join(
+        LOGS_DIRECTORY,
+        `request-headers-${timestamp}.json`,
+      );
       const fsOptions: BaseEncodingOptions = {
         encoding: 'utf-8',
       };
       await Promise.all([
-        fsPromises.writeFile(responseFile, bodyString, fsOptions),
-        fsPromises.writeFile(responseHeadersFile, headersString, fsOptions),
+        fsPromises.writeFile(responseFile, Buffer.from(body)),
+        fsPromises.writeFile(
+          responseHeadersFile,
+          responseHeadersString,
+          fsOptions,
+        ),
+        fsPromises.writeFile(
+          requestHeadersFile,
+          requestHeadersString,
+          fsOptions,
+        ),
       ]);
     }
-    res.end(bodyString);
+    res.end(body);
   });
 });
