@@ -8,11 +8,15 @@ import { BaseEncodingOptions } from 'node:fs';
 import dotenv from 'dotenv';
 
 console.log('App is started');
-dotenv.config();
+const ROOT_DIRECTORY = path.resolve(__dirname, '..');
+
+const envFile = path.join(ROOT_DIRECTORY, '.env');
+dotenv.config({
+  path: envFile,
+});
 const { TARGET, HANDLE_ALL_REQUESTS } = process.env;
 console.log(`Handle all requests ${!!HANDLE_ALL_REQUESTS}`);
 
-const ROOT_DIRECTORY = path.resolve(__dirname, '..');
 const SSL_DIRECTORY = path.join(ROOT_DIRECTORY, 'ssl');
 const SSL_KEY_PATH = path.join(SSL_DIRECTORY, 'ssl_key.pem');
 const SSL_CERT_PATH = path.join(SSL_DIRECTORY, 'ssl_cert.pem');
