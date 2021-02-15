@@ -67,6 +67,7 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
   const body: any[] = [];
   console.log(`Processing response.`);
   proxyRes.on('data', (chunk) => {
+    console.log(chunk);
     if (Array.isArray(chunk)) {
       body.push(...chunk);
     } else {
