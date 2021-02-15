@@ -7,8 +7,10 @@ import moment from 'moment';
 import { BaseEncodingOptions } from 'node:fs';
 import dotenv from 'dotenv';
 
+console.log('App is started');
 dotenv.config();
 const { TARGET, HANDLE_ALL_REQUEST } = process.env;
+console.log(`Handle all requests ${!!HANDLE_ALL_REQUEST}`);
 
 const ROOT_DIRECTORY = path.resolve(__dirname, '..');
 const SSL_DIRECTORY = path.join(ROOT_DIRECTORY, 'ssl');
