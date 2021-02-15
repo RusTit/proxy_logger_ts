@@ -28,7 +28,7 @@ const proxy = createServer({
     cert: fs.readFileSync(SSL_CERT_PATH, 'utf8'),
   },
   target: TARGET,
-  secure: true,
+  secure: false,
   selfHandleResponse: true,
 });
 
