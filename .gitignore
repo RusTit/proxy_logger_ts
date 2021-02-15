@@ -1,0 +1,6 @@
+node_modules/
+ssl/*.pem
+.idea/
+dist/
+
+yarn-error.log

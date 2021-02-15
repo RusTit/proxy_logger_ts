@@ -1,0 +1,40 @@
+{
+  "name": "proxy_logger_ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "yarn tsc",
+    "prestart": "yarn build",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RusTit/proxy_logger_ts.git"
+  },
+  "author": "Anatoly Russkih <titanofdarkness@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RusTit/proxy_logger_ts/issues"
+  },
+  "homepage": "https://github.com/RusTit/proxy_logger_ts#readme",
+  "dependencies": {
+    "@types/http-proxy": "^1.17.5",
+    "dotenv": "^8.2.0",
+    "http-proxy": "^1.18.1",
+    "moment": "^2.29.1",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.28",
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
+    "eslint": "^7.20.0",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "prettier": "^2.2.1",
+    "tsconfig-paths": "^3.9.0"
+  }
+}
