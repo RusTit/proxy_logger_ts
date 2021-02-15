@@ -73,6 +73,7 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
   proxyRes.on('end', async () => {
     const userAgent = req.headers['user-agent'];
     if (checkUserAgent(userAgent)) {
+      console.log(`Saving response for bot`);
       const requestHeadersString = JSON.stringify(req.headers);
       const responseHeadersString = JSON.stringify(proxyRes.headers);
       const timestamp = moment().format('YYYY-MM-DD-HH-mm-ss');
