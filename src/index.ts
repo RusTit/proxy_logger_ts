@@ -31,6 +31,8 @@ const proxy = createServer({
   secure: true,
   selfHandleResponse: true,
 });
+
+console.log(`App is running on ${HTTPS_PORT}`);
 proxy.listen(HTTPS_PORT);
 
 proxy.on(
