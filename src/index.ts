@@ -108,6 +108,6 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
         ),
       ]);
     }
-    res.end(body);
+    res.end(Buffer.from(body));
   });
 });
