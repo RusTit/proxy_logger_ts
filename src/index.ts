@@ -67,6 +67,7 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
   const body: any[] = [];
   console.log(`Processing response.`);
   proxyRes.on('data', (chunk) => {
+    console.log(`Data chunk`);
     console.log(chunk);
     if (Array.isArray(chunk)) {
       body.push(...chunk);
@@ -108,6 +109,9 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
           fsOptions,
         ),
       ]);
+    }
+    for (const [key, value] of Object.keys(proxyRes.headers)) {
+      res.setHeader(key, value);
     }
     res.end(Buffer.concat(body));
   });
