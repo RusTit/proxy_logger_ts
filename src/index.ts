@@ -38,6 +38,7 @@ proxy.listen(HTTPS_PORT);
 proxy.on(
   'error',
   function (err: Error, req: IncomingMessage, res: ServerResponse) {
+    console.error(err);
     res.writeHead(500, {
       'Content-Type': 'text/plain',
     });
