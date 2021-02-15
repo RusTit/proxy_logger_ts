@@ -14,12 +14,13 @@ const envFile = path.join(ROOT_DIRECTORY, '.env');
 dotenv.config({
   path: envFile,
 });
-const { TARGET, HANDLE_ALL_REQUESTS } = process.env;
+const { TARGET, HANDLE_ALL_REQUESTS, PORT } = process.env;
 console.log(`Handle all requests ${!!HANDLE_ALL_REQUESTS}`);
 
 const SSL_DIRECTORY = path.join(ROOT_DIRECTORY, 'ssl');
 const SSL_KEY_PATH = path.join(SSL_DIRECTORY, 'ssl_key.pem');
 const SSL_CERT_PATH = path.join(SSL_DIRECTORY, 'ssl_cert.pem');
+const HTTPS_PORT = PORT ? Number.parseInt(PORT) : 443;
 
 const proxy = createServer({
   ssl: {
@@ -30,7 +31,7 @@ const proxy = createServer({
   secure: true,
   selfHandleResponse: true,
 });
-proxy.listen(443);
+proxy.listen(HTTPS_PORT);
 
 proxy.on(
   'error',
