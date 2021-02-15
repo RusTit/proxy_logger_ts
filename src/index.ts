@@ -96,7 +96,7 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
         encoding: 'utf-8',
       };
       await Promise.all([
-        fsPromises.writeFile(responseFile, Buffer.from(body)),
+        fsPromises.writeFile(responseFile, Buffer.concat(body)),
         fsPromises.writeFile(
           responseHeadersFile,
           responseHeadersString,
@@ -109,6 +109,6 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
         ),
       ]);
     }
-    res.end(Buffer.from(body));
+    res.end(Buffer.concat(body));
   });
 });
