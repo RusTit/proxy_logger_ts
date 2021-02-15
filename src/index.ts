@@ -30,7 +30,7 @@ const proxy = createServer({
   secure: true,
   selfHandleResponse: true,
 });
-proxy.listen(3000);
+proxy.listen(443);
 
 proxy.on(
   'error',
