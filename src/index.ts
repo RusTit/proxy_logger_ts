@@ -126,6 +126,9 @@ function handleResponse(
         ),
       ]);
     }
+    if (proxyRes.statusCode) {
+      res.statusCode = proxyRes.statusCode;
+    }
     for (const [key, value] of Object.entries(proxyRes.headers)) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
