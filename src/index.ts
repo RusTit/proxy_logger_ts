@@ -9,8 +9,8 @@ import dotenv from 'dotenv';
 
 console.log('App is started');
 dotenv.config();
-const { TARGET, HANDLE_ALL_REQUEST } = process.env;
-console.log(`Handle all requests ${!!HANDLE_ALL_REQUEST}`);
+const { TARGET, HANDLE_ALL_REQUESTS } = process.env;
+console.log(`Handle all requests ${!!HANDLE_ALL_REQUESTS}`);
 
 const ROOT_DIRECTORY = path.resolve(__dirname, '..');
 const SSL_DIRECTORY = path.join(ROOT_DIRECTORY, 'ssl');
@@ -45,7 +45,7 @@ const LOGS_DIRECTORY = path.join(ROOT_DIRECTORY, 'logs');
 
 const checkUserAgent = (userAgent: string | undefined): boolean => {
   console.log(`User agent: ${userAgent}`);
-  if (HANDLE_ALL_REQUEST) {
+  if (HANDLE_ALL_REQUESTS) {
     return true;
   }
   if (!userAgent) {
