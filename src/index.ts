@@ -14,40 +14,56 @@ const envFile = path.join(ROOT_DIRECTORY, '.env');
 dotenv.config({
   path: envFile,
 });
-const { TARGET, HANDLE_ALL_REQUESTS, PORT } = process.env;
+const { HTTP_TARGET, HTTPS_TARGET, HANDLE_ALL_REQUESTS } = process.env;
 console.log(`Handle all requests ${!!HANDLE_ALL_REQUESTS}`);
 
 const SSL_DIRECTORY = path.join(ROOT_DIRECTORY, 'ssl');
 const SSL_KEY_PATH = path.join(SSL_DIRECTORY, 'ssl_key.pem');
 const SSL_CERT_PATH = path.join(SSL_DIRECTORY, 'ssl_cert.pem');
-const HTTPS_PORT = PORT ? Number.parseInt(PORT) : 443;
 
-const proxy = createServer({
+const HTTP_PORT = process.env.HTTP_PORT
+  ? Number.parseInt(process.env.HTTP_PORT)
+  : 80;
+const HTTPS_PORT = process.env.HTTPS_PORT
+  ? Number.parseInt(process.env.HTTPS_PORT)
+  : 443;
+
+const http_proxy = createServer({
+  target: HTTP_TARGET,
+  selfHandleResponse: true,
+});
+
+http_proxy.listen(HTTP_PORT);
+console.log(`HTTP is running on ${HTTP_PORT}`);
+
+const https_proxy = createServer({
   ssl: {
     key: fs.readFileSync(SSL_KEY_PATH, 'utf8'),
     cert: fs.readFileSync(SSL_CERT_PATH, 'utf8'),
   },
-  target: TARGET,
+  target: HTTPS_TARGET,
   secure: false,
   selfHandleResponse: true,
 });
 
 console.log(`App is running on ${HTTPS_PORT}`);
-proxy.listen(HTTPS_PORT);
+https_proxy.listen(HTTPS_PORT);
 
-proxy.on(
-  'error',
-  function (err: Error, req: IncomingMessage, res: ServerResponse) {
-    console.error(err);
-    res.writeHead(500, {
-      'Content-Type': 'text/plain',
-    });
+function proxyErrorHandler(
+  err: Error,
+  req: IncomingMessage,
+  res: ServerResponse,
+) {
+  console.error(err);
+  res.writeHead(500, {
+    'Content-Type': 'text/plain',
+  });
 
-    res.end(
-      'Something went wrong. And we are reporting a custom error message.',
-    );
-  },
-);
+  res.end('Something went wrong. And we are reporting a custom error message.');
+}
+
+http_proxy.on('error', proxyErrorHandler);
+https_proxy.on('error', proxyErrorHandler);
 
 const LOGS_DIRECTORY = path.join(ROOT_DIRECTORY, 'logs');
 
@@ -63,7 +79,11 @@ const checkUserAgent = (userAgent: string | undefined): boolean => {
   return normUserAgent.includes('googlebot');
 };
 
-proxy.on('proxyRes', function (proxyRes, req, res) {
+function handleResponse(
+  proxyRes: IncomingMessage,
+  req: IncomingMessage,
+  res: ServerResponse,
+) {
   const body: Buffer[] = [];
   console.log(`Processing response.`);
   proxyRes.on('data', (chunk) => {
@@ -113,4 +133,7 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
     }
     res.end(Buffer.concat(body));
   });
-});
+}
+
+http_proxy.on('proxyRes', handleResponse);
+https_proxy.on('proxyRes', handleResponse);
