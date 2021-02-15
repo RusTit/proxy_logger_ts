@@ -72,6 +72,7 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
   });
   proxyRes.on('end', async () => {
     const userAgent = req.headers['user-agent'];
+    const responseResult = Buffer.concat(body);
     if (checkUserAgent(userAgent)) {
       const requestHeadersString = JSON.stringify(req.headers);
       const responseHeadersString = JSON.stringify(proxyRes.headers);
@@ -92,7 +93,7 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
         encoding: 'utf-8',
       };
       await Promise.all([
-        fsPromises.writeFile(responseFile, Buffer.concat(body)),
+        fsPromises.writeFile(responseFile, responseResult),
         fsPromises.writeFile(
           responseHeadersFile,
           responseHeadersString,
@@ -106,13 +107,10 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
       ]);
     }
     for (const [key, value] of Object.entries(proxyRes.headers)) {
-      console.log(`${key} ${value}`);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       res.setHeader(key, value);
     }
-    console.log('Headers:');
-    console.log(res.getHeaders());
-    res.end(Buffer.concat(body));
+    res.end(responseResult);
   });
 });
