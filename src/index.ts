@@ -107,6 +107,9 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
     }
     for (const [key, value] of Object.entries(proxyRes.headers)) {
       console.log(`${key} ${value}`);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      res.setHeader(key, value);
     }
     console.log('Headers:');
     console.log(res.getHeaders());
