@@ -4,3 +4,4 @@ ssl/*.pem
 dist/
 
 yarn-error.log
+.env1
