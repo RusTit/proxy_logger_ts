@@ -41,11 +41,6 @@ proxy.on(
 
 const LOGS_DIRECTORY = path.join(ROOT_DIRECTORY, 'logs');
 
-const userAgentsList = [
-  'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-  'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/W.X.Y.Z‡ Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-].map((agent) => agent.toLowerCase());
-
 const checkUserAgent = (userAgent: string | undefined): boolean => {
   console.log(`User agent: ${userAgent}`);
   if (HANDLE_ALL_REQUEST) {
@@ -55,7 +50,7 @@ const checkUserAgent = (userAgent: string | undefined): boolean => {
     return false;
   }
   const normUserAgent = userAgent.toLowerCase();
-  return userAgentsList.includes(normUserAgent);
+  return normUserAgent.includes('googlebot');
 };
 
 proxy.on('proxyRes', function (proxyRes, req, res) {
