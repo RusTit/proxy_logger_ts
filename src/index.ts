@@ -10,9 +10,13 @@ console.log('App is started');
 const ROOT_DIRECTORY = path.resolve(__dirname, '..');
 
 const envFile = path.join(ROOT_DIRECTORY, '.env');
-dotenv.config({
+const dotEnvResult = dotenv.config({
   path: envFile,
 });
+if (dotEnvResult.error) {
+  const { error } = dotEnvResult;
+  console.log(`Minor dotenv error: ${error?.message}`);
+}
 const { HTTP_TARGET, HTTPS_TARGET, HANDLE_ALL_REQUESTS } = process.env;
 console.log(`Handle all requests ${!!HANDLE_ALL_REQUESTS}`);
 
