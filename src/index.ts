@@ -1,6 +1,5 @@
 import path from 'path';
-import fs from 'fs';
-import fsPromises from 'fs/promises';
+import fs, { WriteFileOptions } from 'fs';
 import { createServer } from 'http-proxy';
 import { IncomingMessage, ServerResponse } from 'http';
 import moment from 'moment';
@@ -79,6 +78,22 @@ const checkUserAgent = (userAgent: string | undefined): boolean => {
   return normUserAgent.includes('googlebot');
 };
 
+async function writeFile(
+  filePath: string,
+  content: Buffer | string,
+  options: WriteFileOptions,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filePath, content, options, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
 function handleResponse(
   proxyRes: IncomingMessage,
   req: IncomingMessage,
@@ -92,38 +107,28 @@ function handleResponse(
   });
   proxyRes.on('end', async () => {
     const userAgent = req.headers['user-agent'];
+    const responseResult = Buffer.concat(body);
     if (checkUserAgent(userAgent)) {
       console.log(`Saving response for bot`);
       const requestHeadersString = JSON.stringify(req.headers);
       const responseHeadersString = JSON.stringify(proxyRes.headers);
       const timestamp = moment().format('YYYY-MM-DD-HH-mm-ss');
-      const responseFile = path.join(
-        LOGS_DIRECTORY,
-        `response-${timestamp}.log`,
-      );
+      const responseFile = path.join(LOGS_DIRECTORY, `data-${timestamp}.log`);
       const responseHeadersFile = path.join(
         LOGS_DIRECTORY,
-        `response-headers-${timestamp}.json`,
+        `data-${timestamp}-res-headers.json`,
       );
       const requestHeadersFile = path.join(
         LOGS_DIRECTORY,
-        `request-headers-${timestamp}.json`,
+        `data-${timestamp}-req-headers.json`,
       );
       const fsOptions: BaseEncodingOptions = {
         encoding: 'utf-8',
       };
       await Promise.all([
-        fsPromises.writeFile(responseFile, Buffer.concat(body)),
-        fsPromises.writeFile(
-          responseHeadersFile,
-          responseHeadersString,
-          fsOptions,
-        ),
-        fsPromises.writeFile(
-          requestHeadersFile,
-          requestHeadersString,
-          fsOptions,
-        ),
+        writeFile(responseFile, responseResult, {}),
+        writeFile(responseHeadersFile, responseHeadersString, fsOptions),
+        writeFile(requestHeadersFile, requestHeadersString, fsOptions),
       ]);
     }
     if (proxyRes.statusCode) {
@@ -134,7 +139,7 @@ function handleResponse(
       // @ts-ignore
       res.setHeader(key, value);
     }
-    res.end(Buffer.concat(body));
+    res.end(responseResult);
   });
 }
 
